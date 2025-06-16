@@ -1,0 +1,15 @@
+agent:
+  name: "ExampleAgent"
+  description: "An example agent built with Nüm Agents SDK"
+  univers:
+    - PocketFlowCore
+    - StructureAgentIA
+    - KnowledgeLayer
+    - QualityAssurance
+  protocol: N2A
+  llm: gpt-4o
+  memory: true
+  eventbus: true
+  scheduler: true
+  metrics: true
+  tracing: true

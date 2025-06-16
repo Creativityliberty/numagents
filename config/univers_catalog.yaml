@@ -1,0 +1,49 @@
+univers_catalog:
+  PocketFlowCore:
+    modules:
+      - Flow
+      - Node
+      - Transition
+      - SharedStore
+  StructureAgentIA:
+    modules:
+      - ManagerGoal
+      - ManagerTask
+      - MCPNode
+      - InputParserNode
+  KnowledgeLayer:
+    modules:
+      - KnowledgeStore
+      - MemoryRecallNode
+      - MemoryStoreNode
+  LearningLoop:
+    modules:
+      - ActiveLearningNode
+      - ModelFineTuner
+  QualityAssurance:
+    modules:
+      - EvaluatorNode
+      - FeedbackCollectorNode
+  FallbackEscalade:
+    modules:
+      - FallbackNodeAdvanced
+      - EscalationManager
+  Monitoring:
+    modules:
+      - MetricsCollector
+      - AuditLogger
+      - Tracing
+  ProcessManagement:
+    modules:
+      - ProcessManager
+      - MCP
+  Resilience:
+    modules:
+      - RetryNode
+      - CircuitBreakerNode
+      - RateLimiterNode
+  ToolIntegration:
+    modules:
+      - ToolAdapterNode
+      - PluginRegistry
+      - ToolRouterNode
