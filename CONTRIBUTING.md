@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to the Nüm Agents SDK! This document provides guidelines and instructions for contributing to the project.
 
+**IMPORTANT NOTICE**: This is a proprietary project owned by Lionel TAGNE. All contributions you make will be under the proprietary license terms outlined in the LICENSE file. By contributing to this project, you agree to assign all rights to your contributions to the project owner.
+
 ## Code of Conduct
 
 Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to maintain a positive and inclusive community.
@@ -11,20 +13,26 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to maintain a p
 1. **Fork the repository**: Start by forking the [Nüm Agents SDK repository](https://github.com/numtema/num-agents-sdk).
 
 2. **Clone your fork**: Clone your fork to your local machine.
+
    ```bash
    git clone https://github.com/your-username/num-agents-sdk.git
    cd num-agents-sdk
    ```
 
+
 3. **Set up the development environment**: Install the development dependencies.
+
    ```bash
    pip install -e ".[dev]"
    ```
 
+
 4. **Create a branch**: Create a branch for your contribution.
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
+
 
 ## Development Workflow
 
@@ -33,30 +41,40 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to maintain a p
 2. **Write tests**: Add tests for your changes to ensure they work as expected.
 
 3. **Run the tests**: Make sure all tests pass.
+
    ```bash
    pytest
    ```
 
+
 4. **Format your code**: Ensure your code follows our style guidelines.
+
    ```bash
    black .
    isort .
    ```
 
+
 5. **Check for linting errors**: Run the linter to check for any issues.
+
    ```bash
    flake8
    ```
 
+
 6. **Commit your changes**: Write a clear commit message.
+
    ```bash
    git commit -m "Add feature: your feature description"
    ```
 
+
 7. **Push to your fork**: Push your changes to your fork.
+
    ```bash
    git push origin feature/your-feature-name
    ```
+
 
 8. **Create a pull request**: Submit a pull request from your branch to the main repository.
 

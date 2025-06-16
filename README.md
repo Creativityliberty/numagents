@@ -47,7 +47,7 @@ agent:
 
 The Nüm Agents SDK follows a modular architecture:
 
-```
+```text
 num-agents-sdk/
 ├── num_agents/
 │   ├── composer/       # Agent generation and composition
@@ -67,4 +67,6 @@ Nüm Agents SDK is currently in alpha (v0.1.0). We're actively developing core f
 
 ## License
 
-MIT License
+Proprietary - All Rights Reserved
+
+Copyright (c) 2025 Lionel TAGNE. Unauthorized copying, modification, distribution, or use of this software is strictly prohibited.
