@@ -1,5 +1,11 @@
 # Nüm Agents SDK
 
+[![CI](https://github.com/Creativityliberty/numagents/workflows/CI/badge.svg)](https://github.com/Creativityliberty/numagents/actions)
+[![codecov](https://codecov.io/gh/Creativityliberty/numagents/branch/main/graph/badge.svg)](https://codecov.io/gh/Creativityliberty/numagents)
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 A dynamic agent orchestration framework for building modular, scalable AI agent systems.
 
 ## Overview
@@ -126,6 +132,89 @@ conditional = ConditionalNode(
 ```
 
 For more examples, see the [Core Improvements Guide](docs/core_improvements.md).
+
+## Development
+
+### Quick Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/Creativityliberty/numagents.git
+cd numagents
+
+# Install in development mode with all dependencies
+make install-dev
+
+# Run all checks
+make check
+```
+
+### Development Commands
+
+The project includes a Makefile with common development commands:
+
+```bash
+make help           # Show all available commands
+make test           # Run tests
+make test-cov       # Run tests with coverage report
+make lint           # Run all linters
+make format         # Auto-format code
+make type-check     # Run type checking
+make check          # Run lint, type-check, and test
+make clean          # Clean build artifacts
+make build          # Build distribution package
+```
+
+### Pre-commit Hooks
+
+The project uses pre-commit hooks to ensure code quality:
+
+```bash
+# Install pre-commit hooks (done automatically with make install-dev)
+pre-commit install
+
+# Run hooks manually on all files
+make pre-commit
+
+# Update hooks to latest versions
+make pre-commit-update
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run with coverage
+make test-cov
+
+# Run in parallel
+make test-parallel
+
+# Open coverage report in browser
+make coverage-report
+```
+
+### Code Quality
+
+We maintain high code quality standards:
+- **Coverage**: Minimum 80% test coverage required
+- **Type Safety**: Full mypy type checking (strict mode)
+- **Formatting**: Black and isort for consistent style
+- **Linting**: Ruff for code quality
+- **Security**: Bandit for security checks
+
+### CI/CD
+
+All pull requests are automatically tested with:
+- Python 3.8, 3.9, 3.10, 3.11
+- Linting (black, isort, ruff)
+- Type checking (mypy)
+- Security scanning (bandit)
+- Test coverage (pytest-cov)
+
+See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for details.
 
 ## Development Status
 
