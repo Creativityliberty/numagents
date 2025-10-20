@@ -13,6 +13,12 @@ Nüm Agents is a powerful SDK for creating, managing, and deploying AI agents wi
 - **Logical Graph Analysis**: Visualize agent component dependencies and interactions
 - **Meta-Orchestration**: Built-in supervision capabilities to validate and improve agent designs
 - **Extensible Framework**: Easily add custom universes, modules, and node types
+- **Robust Error Handling**: Custom exception system with detailed error information
+- **Structured Logging**: Comprehensive logging throughout the SDK for debugging and monitoring
+- **Execution Hooks**: Add custom logic before/after node and flow execution
+- **Conditional Execution**: Support for conditional branching in agent flows
+- **Flow Serialization**: Save and load flow configurations as JSON
+- **Retry Mechanism**: Automatic retry with exponential backoff for unstable operations
 
 ## Quick Start
 
@@ -60,6 +66,66 @@ num-agents-sdk/
 ├── tests/              # Test suite
 └── docs/               # Documentation
 ```
+
+## Advanced Features
+
+### Execution Hooks and Error Handling
+
+```python
+from num_agents import Node, Flow, SharedStore, configure_logging
+import logging
+
+# Enable logging
+configure_logging(level=logging.INFO)
+
+# Create node with retry
+class APINode(Node):
+    def __init__(self):
+        super().__init__(
+            name="APICall",
+            retry_count=3,  # Retry up to 3 times
+            enable_logging=True
+        )
+
+    def exec(self, shared: SharedStore):
+        response = call_external_api()
+        return {"data": response}
+
+# Add hooks
+node = APINode()
+
+node.add_before_hook(lambda shared: shared.set("start_time", time.time()))
+node.add_after_hook(lambda shared, result:
+    shared.set("duration", time.time() - shared.get("start_time")))
+node.add_error_hook(lambda shared, error:
+    logger.error(f"API call failed: {error}"))
+
+# Execute in flow
+flow = Flow(name="DataPipeline", enable_logging=True)
+flow.add_node(node)
+flow.set_start(node)
+
+results = flow.execute(initial_data={"config": config})
+```
+
+### Conditional Execution
+
+```python
+from num_agents import ConditionalNode
+
+# Define condition
+def check_value(shared: SharedStore) -> bool:
+    return shared.get("value", 0) > 100
+
+# Create conditional node
+conditional = ConditionalNode(
+    condition=check_value,
+    true_node=high_value_processor,
+    false_node=low_value_processor
+)
+```
+
+For more examples, see the [Core Improvements Guide](docs/core_improvements.md).
 
 ## Development Status
 
