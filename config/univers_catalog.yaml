@@ -47,3 +47,44 @@ univers_catalog:
       - ToolAdapterNode
       - PluginRegistry
       - ToolRouterNode
+  ToolLayer:
+    modules:
+      - Tool
+      - PythonFunctionTool
+      - PythonCodeTool
+      - ChainedTool
+      - ToolRegistry
+      - ToolExecutor
+      - ToolExecuteNode
+      - ToolChainNode
+  StateLayer:
+    modules:
+      - State
+      - StateTransition
+      - Checkpoint
+      - StateMachine
+      - StateManager
+      - CheckpointManager
+      - StateBackend
+      - InMemoryBackend
+      - FileBackend
+      - PickleBackend
+      - StateTransitionNode
+      - CheckpointNode
+  SecurityLayer:
+    modules:
+      - Authenticator
+      - TokenAuthenticator
+      - APIKeyAuthenticator
+      - Sanitizer
+      - RegexSanitizer
+      - HTMLSanitizer
+      - SecretsProvider
+      - EnvironmentSecretsProvider
+      - FileSecretsProvider
+      - AuditLogger
+      - RateLimiter
+      - SecurityManager
+      - AuthenticationNode
+      - SanitizationNode
+      - AuditNode
