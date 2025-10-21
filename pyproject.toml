@@ -42,6 +42,12 @@ dev = [
     "bandit[toml]>=1.7.5",
     "types-PyYAML>=6.0.0",
 ]
+knowledge = [
+    "openai>=1.0.0",
+]
+all = [
+    "openai>=1.0.0",
+]
 
 [project.scripts]
 num-agents = "num_agents.cli:app"
