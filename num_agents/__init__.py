@@ -45,6 +45,46 @@ try:
 except ImportError:
     _KNOWLEDGE_LAYER_AVAILABLE = False
 
+# StructureAgentIA imports
+try:
+    from num_agents.modules.structure_agent_ia import (
+        Goal,
+        Task,
+        GoalManager,
+        TaskManager,
+        Priority,
+        Status,
+        InputParserNode,
+        GoalPlannerNode,
+        TaskExecutorNode,
+        StructureAgentException,
+        GoalError,
+        TaskError,
+    )
+
+    _STRUCTURE_AGENT_IA_AVAILABLE = True
+except ImportError:
+    _STRUCTURE_AGENT_IA_AVAILABLE = False
+
+# Monitoring imports
+try:
+    from num_agents.modules.monitoring import (
+        Monitor,
+        MetricsCollector,
+        Tracer,
+        MonitoringNode,
+        Metric,
+        Span,
+        MetricType,
+        SpanStatus,
+        get_monitor,
+        MonitoringException,
+    )
+
+    _MONITORING_AVAILABLE = True
+except ImportError:
+    _MONITORING_AVAILABLE = False
+
 __version__ = "0.1.0"
 
 __all__ = [
@@ -95,5 +135,43 @@ if _KNOWLEDGE_LAYER_AVAILABLE:
             "KnowledgeLayerException",
             "EmbeddingProviderError",
             "VectorStoreError",
+        ]
+    )
+
+# Add StructureAgentIA to __all__ if available
+if _STRUCTURE_AGENT_IA_AVAILABLE:
+    __all__.extend(
+        [
+            # StructureAgentIA
+            "Goal",
+            "Task",
+            "GoalManager",
+            "TaskManager",
+            "Priority",
+            "Status",
+            "InputParserNode",
+            "GoalPlannerNode",
+            "TaskExecutorNode",
+            "StructureAgentException",
+            "GoalError",
+            "TaskError",
+        ]
+    )
+
+# Add Monitoring to __all__ if available
+if _MONITORING_AVAILABLE:
+    __all__.extend(
+        [
+            # Monitoring
+            "Monitor",
+            "MetricsCollector",
+            "Tracer",
+            "MonitoringNode",
+            "Metric",
+            "Span",
+            "MetricType",
+            "SpanStatus",
+            "get_monitor",
+            "MonitoringException",
         ]
     )
