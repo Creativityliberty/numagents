@@ -124,6 +124,48 @@ try:
 except ImportError:
     _SECURITY_LAYER_AVAILABLE = False
 
+# MorphicLayer imports
+try:
+    from num_agents.modules.morphic_layer import (
+        # U₀: Base Morphic Universe
+        ObjetReactif,
+        EtatObjet,
+        Morphisme,
+        # U_G: Goal Universe
+        ObjectifG,
+        GenerateurObjectifs,
+        # U_Φ: Morphic Flux
+        FluxPhi,
+        # U_Ψ: Logical Selector
+        SelecteurPsi,
+        # U_mem: Cognitive Memory
+        Trace,
+        Memoire,
+        MemoireVectorielle,
+        # RRLA: Reflection Reasoning
+        EtapeRaisonnement,
+        ChainOfReasoning,
+        RRLA,
+        # Persona
+        Persona,
+        NUMTEMA_PERSONA,
+        # Nodes
+        ObjectifEvaluationNode,
+        FluxExecutionNode,
+        ReasoningNode,
+        MemoireNode,
+        # Exceptions
+        MorphicLayerException,
+        ObjectiveError,
+        FluxError,
+        ReasoningError,
+        MemoryError,
+    )
+
+    _MORPHIC_LAYER_AVAILABLE = True
+except ImportError:
+    _MORPHIC_LAYER_AVAILABLE = False
+
 __version__ = "0.1.0"
 
 __all__ = [
@@ -250,5 +292,45 @@ if _SECURITY_LAYER_AVAILABLE:
             "SecretsError",
             "RateLimitError",
             "ContentFilterError",
+        ]
+    )
+
+# Add MorphicLayer to __all__ if available
+if _MORPHIC_LAYER_AVAILABLE:
+    __all__.extend(
+        [
+            # MorphicLayer - U₀: Base Morphic Universe
+            "ObjetReactif",
+            "EtatObjet",
+            "Morphisme",
+            # MorphicLayer - U_G: Goal Universe
+            "ObjectifG",
+            "GenerateurObjectifs",
+            # MorphicLayer - U_Φ: Morphic Flux
+            "FluxPhi",
+            # MorphicLayer - U_Ψ: Logical Selector
+            "SelecteurPsi",
+            # MorphicLayer - U_mem: Cognitive Memory
+            "Trace",
+            "Memoire",
+            "MemoireVectorielle",
+            # MorphicLayer - RRLA: Reflection Reasoning
+            "EtapeRaisonnement",
+            "ChainOfReasoning",
+            "RRLA",
+            # MorphicLayer - Persona
+            "Persona",
+            "NUMTEMA_PERSONA",
+            # MorphicLayer - Nodes
+            "ObjectifEvaluationNode",
+            "FluxExecutionNode",
+            "ReasoningNode",
+            "MemoireNode",
+            # MorphicLayer - Exceptions
+            "MorphicLayerException",
+            "ObjectiveError",
+            "FluxError",
+            "ReasoningError",
+            "MemoryError",
         ]
     )

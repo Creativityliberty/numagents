@@ -88,3 +88,24 @@ univers_catalog:
       - AuthenticationNode
       - SanitizationNode
       - AuditNode
+  MorphicLayer:
+    modules:
+      - ObjetReactif
+      - EtatObjet
+      - Morphisme
+      - ObjectifG
+      - GenerateurObjectifs
+      - FluxPhi
+      - SelecteurPsi
+      - Trace
+      - Memoire
+      - MemoireVectorielle
+      - EtapeRaisonnement
+      - ChainOfReasoning
+      - RRLA
+      - Persona
+      - NUMTEMA_PERSONA
+      - ObjectifEvaluationNode
+      - FluxExecutionNode
+      - ReasoningNode
+      - MemoireNode
