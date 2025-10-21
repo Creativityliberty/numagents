@@ -85,6 +85,32 @@ try:
 except ImportError:
     _MONITORING_AVAILABLE = False
 
+# Resilience imports
+try:
+    from num_agents.modules.resilience import (
+        RetryPolicy,
+        RetryConfig,
+        CircuitBreaker,
+        CircuitBreakerConfig,
+        CircuitState,
+        RateLimiter,
+        TokenBucketRateLimiter,
+        SlidingWindowRateLimiter,
+        ResilientNode,
+        with_retry,
+        with_circuit_breaker,
+        with_rate_limit,
+        ResilienceException,
+        RetryExhausted,
+        CircuitBreakerOpen,
+        RateLimitExceeded,
+        TimeoutException,
+    )
+
+    _RESILIENCE_AVAILABLE = True
+except ImportError:
+    _RESILIENCE_AVAILABLE = False
+
 __version__ = "0.1.0"
 
 __all__ = [
@@ -173,5 +199,30 @@ if _MONITORING_AVAILABLE:
             "SpanStatus",
             "get_monitor",
             "MonitoringException",
+        ]
+    )
+
+# Add Resilience to __all__ if available
+if _RESILIENCE_AVAILABLE:
+    __all__.extend(
+        [
+            # Resilience
+            "RetryPolicy",
+            "RetryConfig",
+            "CircuitBreaker",
+            "CircuitBreakerConfig",
+            "CircuitState",
+            "RateLimiter",
+            "TokenBucketRateLimiter",
+            "SlidingWindowRateLimiter",
+            "ResilientNode",
+            "with_retry",
+            "with_circuit_breaker",
+            "with_rate_limit",
+            "ResilienceException",
+            "RetryExhausted",
+            "CircuitBreakerOpen",
+            "RateLimitExceeded",
+            "TimeoutException",
         ]
     )
