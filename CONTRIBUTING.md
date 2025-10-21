@@ -51,32 +51,38 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to maintain a p
 
    ```bash
    black .
-   isort .
    ```
 
 
 5. **Check for linting errors**: Run the linter to check for any issues.
 
    ```bash
-   flake8
+   ruff check .
    ```
 
 
-6. **Commit your changes**: Write a clear commit message.
+6. **Type checking**: Run mypy to check for type errors.
+
+   ```bash
+   mypy num_agents
+   ```
+
+
+7. **Commit your changes**: Write a clear commit message.
 
    ```bash
    git commit -m "Add feature: your feature description"
    ```
 
 
-7. **Push to your fork**: Push your changes to your fork.
+8. **Push to your fork**: Push your changes to your fork.
 
    ```bash
    git push origin feature/your-feature-name
    ```
 
 
-8. **Create a pull request**: Submit a pull request from your branch to the main repository.
+9. **Create a pull request**: Submit a pull request from your branch to the main repository.
 
 ## Pull Request Guidelines
 
@@ -134,13 +140,15 @@ We follow these style guidelines:
 
 3. **Type Hints**: Include type hints for function parameters and return values.
 
-4. **Imports**: Organize imports using `isort`.
+4. **Formatting**: Use `black` for code formatting (100 character line length).
 
-5. **Formatting**: Use `black` for code formatting.
+5. **Linting**: Use `ruff` for fast Python linting.
+
+6. **Type Checking**: Use `mypy` for static type checking (strict mode enabled).
 
 ## License
 
-By contributing to the Nüm Agents SDK, you agree that your contributions will be licensed under the project's [Numtema](LICENSE).
+By contributing to the Nüm Agents SDK, you agree that your contributions will be licensed under the project's [proprietary license](LICENSE) and that all rights to your contributions will be assigned to Lionel TAGNE.
 
 ## Questions?
 
