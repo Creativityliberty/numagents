@@ -15,6 +15,7 @@ import argparse
 import json
 import sys
 import os
+import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 import yaml
@@ -561,12 +562,320 @@ def cmd_wizard(args):
     """Launch interactive wizard."""
     interactive_create()
 
+def cmd_list(args):
+    """List all agents."""
+    output.header("📋 Agents List")
+
+    config = EnhancedCLIConfig()
+
+    if not config.agents_dir.exists() or not any(config.agents_dir.iterdir()):
+        output.warning("No agents found")
+        output.info(f"Create one with: numagent-enhanced wizard")
+        return
+
+    # Gather agent info
+    agents_data = []
+    for agent_dir in config.agents_dir.iterdir():
+        if agent_dir.is_dir():
+            config_file = agent_dir / "config.yaml"
+            if config_file.exists():
+                with open(config_file, 'r') as f:
+                    agent_config = yaml.safe_load(f)
+
+                agents_data.append({
+                    "Name": agent_config.get("name", agent_dir.name),
+                    "Template": agent_config.get("template", "unknown"),
+                    "Layers": ", ".join(agent_config.get("layers", [])),
+                    "Status": "✅ Ready"
+                })
+
+    if agents_data:
+        output.table(agents_data, ["Name", "Template", "Layers", "Status"])
+        output.info(f"\nTotal: {len(agents_data)} agent(s)")
+    else:
+        output.warning("No valid agents found")
+
+def cmd_run(args):
+    """Run an agent."""
+    agent_name = args.agent
+
+    output.header(f"🚀 Running Agent: {agent_name}")
+
+    config = EnhancedCLIConfig()
+    agent_dir = config.agents_dir / agent_name
+    agent_file = agent_dir / f"{agent_name}.py"
+
+    if not agent_file.exists():
+        output.error(f"Agent '{agent_name}' not found")
+        output.info("Use 'numagent-enhanced list' to see available agents")
+        return 1
+
+    # Load agent config
+    config_file = agent_dir / "config.yaml"
+    if config_file.exists():
+        with open(config_file, 'r') as f:
+            agent_config = yaml.safe_load(f)
+        output.info(f"Template: {agent_config.get('template', 'unknown')}")
+        output.info(f"Layers: {', '.join(agent_config.get('layers', []))}")
+
+    # Parse task from args
+    task_data = {}
+    if args.task:
+        task_data["task"] = args.task
+
+    if args.data:
+        try:
+            additional_data = json.loads(args.data)
+            task_data.update(additional_data)
+        except json.JSONDecodeError:
+            output.warning("Invalid JSON data, using as string")
+            task_data["data"] = args.data
+
+    # Setup logging
+    import logging
+    import datetime
+
+    log_file = config.logs_dir / f"{agent_name}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler()
+        ]
+    )
+
+    output.info(f"Log file: {log_file}")
+    output.header("📊 Execution")
+
+    # Execute agent
+    try:
+        import sys
+        sys.path.insert(0, str(agent_dir))
+
+        # Import agent module
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(agent_name, agent_file)
+        agent_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agent_module)
+
+        # Get create_agent function
+        if not hasattr(agent_module, 'create_agent'):
+            output.error("Agent must have 'create_agent()' function")
+            return 1
+
+        # Create and execute
+        agent = agent_module.create_agent()
+
+        # Different execution based on agent type
+        # Check if it's a Flow object (has nodes attribute)
+        if hasattr(agent, 'nodes'):
+            # Flow-based agent
+            result = agent.execute(initial_data=task_data)
+        else:
+            # Class-based agent with execute method
+            result = agent.execute(task_data.get("task", "Default task"), task_data)
+
+        output.success("Execution completed!")
+        output.header("📄 Result")
+        print(json.dumps(result, indent=2))
+
+        return 0
+
+    except Exception as e:
+        output.error(f"Execution failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
+def cmd_inspect(args):
+    """Inspect an agent."""
+    agent_name = args.agent
+
+    output.header(f"🔍 Inspecting Agent: {agent_name}")
+
+    config = EnhancedCLIConfig()
+    agent_dir = config.agents_dir / agent_name
+    agent_file = agent_dir / f"{agent_name}.py"
+    config_file = agent_dir / "config.yaml"
+
+    if not agent_file.exists():
+        output.error(f"Agent '{agent_name}' not found")
+        return 1
+
+    # Load config
+    if config_file.exists():
+        with open(config_file, 'r') as f:
+            agent_config = yaml.safe_load(f)
+
+        output.info(f"Name: {agent_config.get('name')}")
+        output.info(f"Template: {agent_config.get('template')}")
+        output.info(f"Layers: {', '.join(agent_config.get('layers', []))}")
+        output.info(f"Created: {agent_config.get('created_at', 'Unknown')}")
+
+    output.header("📁 Files")
+    for file in agent_dir.iterdir():
+        size = file.stat().st_size
+        output.info(f"  {file.name} ({size} bytes)")
+
+    # Show code preview
+    if args.show_code:
+        output.header("💻 Code Preview")
+        code = agent_file.read_text()
+        output.code(code[:1000] + ("..." if len(code) > 1000 else ""))
+
+    return 0
+
+def cmd_logs(args):
+    """View agent logs."""
+    agent_name = args.agent
+
+    output.header(f"📜 Logs for: {agent_name}")
+
+    config = EnhancedCLIConfig()
+
+    # Find log files
+    log_pattern = f"{agent_name}_*.log"
+    log_files = list(config.logs_dir.glob(log_pattern))
+
+    if not log_files:
+        output.warning(f"No logs found for agent '{agent_name}'")
+        return 1
+
+    # Sort by modification time
+    log_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+
+    if args.list:
+        # List all logs
+        output.info(f"Found {len(log_files)} log file(s):")
+        for log_file in log_files:
+            size = log_file.stat().st_size
+            mtime = datetime.datetime.fromtimestamp(log_file.stat().st_mtime)
+            print(f"  {log_file.name} ({size} bytes, {mtime.strftime('%Y-%m-%d %H:%M:%S')})")
+    else:
+        # Show latest log
+        latest_log = log_files[0]
+        output.info(f"Latest log: {latest_log.name}")
+
+        lines = latest_log.read_text().splitlines()
+        if args.tail:
+            lines = lines[-args.tail:]
+
+        print("\n" + "\n".join(lines))
+
+    return 0
+
+def cmd_test(args):
+    """Test an agent."""
+    agent_name = args.agent
+
+    output.header(f"🧪 Testing Agent: {agent_name}")
+
+    config = EnhancedCLIConfig()
+    agent_dir = config.agents_dir / agent_name
+    agent_file = agent_dir / f"{agent_name}.py"
+
+    if not agent_file.exists():
+        output.error(f"Agent '{agent_name}' not found")
+        return 1
+
+    output.info("Running test scenarios...")
+
+    # Test scenarios based on template
+    test_cases = [
+        {"name": "Basic execution", "task": "test_task", "data": {}},
+        {"name": "With data", "task": "process", "data": {"value": "test"}},
+    ]
+
+    passed = 0
+    failed = 0
+
+    for test_case in test_cases:
+        try:
+            output.info(f"\n  Testing: {test_case['name']}")
+
+            # Import and execute
+            import sys
+            sys.path.insert(0, str(agent_dir))
+
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(agent_name, agent_file)
+            agent_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(agent_module)
+
+            agent = agent_module.create_agent()
+
+            # Execute based on agent type
+            # Check if it's a Flow object (has nodes attribute)
+            if hasattr(agent, 'nodes'):
+                # Flow-based agent
+                result = agent.execute(initial_data={"task": test_case["task"]})
+            else:
+                # Class-based agent
+                result = agent.execute(test_case["task"], test_case["data"])
+
+            output.success(f"    ✅ PASSED")
+            passed += 1
+
+        except Exception as e:
+            output.error(f"    ❌ FAILED: {str(e)}")
+            failed += 1
+
+    # Summary
+    output.header("📊 Test Summary")
+    output.info(f"Total: {passed + failed}")
+    output.success(f"Passed: {passed}")
+    if failed > 0:
+        output.error(f"Failed: {failed}")
+
+    return 0 if failed == 0 else 1
+
+def cmd_config(args):
+    """Manage configuration."""
+    config = EnhancedCLIConfig()
+
+    if args.action == 'show':
+        output.header("⚙️  Configuration")
+        output.code(yaml.dump(config.config, default_flow_style=False), "yaml")
+        output.info(f"\nConfig file: {config.config_file}")
+
+    elif args.action == 'edit':
+        output.info(f"Opening config: {config.config_file}")
+        import subprocess
+        editor = os.environ.get('EDITOR', 'nano')
+        subprocess.run([editor, str(config.config_file)])
+
+    elif args.action == 'reset':
+        if RICH_AVAILABLE:
+            confirm = Confirm.ask("⚠️  Reset configuration to defaults?")
+        else:
+            confirm = input("Reset configuration to defaults? (y/N): ").lower() == 'y'
+
+        if confirm:
+            config.config_file.unlink(missing_ok=True)
+            config._load_config()
+            output.success("Configuration reset to defaults")
+        else:
+            output.info("Reset cancelled")
+
+    return 0
+
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
         prog="numagent-enhanced",
         description="NumAgents Enhanced CLI - Full-Featured Agent Development",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  numagent-enhanced wizard              # Create agent interactively
+  numagent-enhanced list                # List all agents
+  numagent-enhanced run my_agent        # Run an agent
+  numagent-enhanced test my_agent       # Test an agent
+  numagent-enhanced inspect my_agent    # Inspect agent details
+  numagent-enhanced logs my_agent       # View agent logs
+  numagent-enhanced config show         # Show configuration
+        """
     )
 
     subparsers = parser.add_subparsers(dest='command', help='Commands')
@@ -579,18 +888,75 @@ def main():
     status_parser = subparsers.add_parser('status', aliases=['s'],
                                           help='Show system status')
 
+    # List command
+    list_parser = subparsers.add_parser('list', aliases=['ls'],
+                                        help='List all agents')
+
+    # Run command
+    run_parser = subparsers.add_parser('run', aliases=['r'],
+                                       help='Run an agent')
+    run_parser.add_argument('agent', help='Agent name')
+    run_parser.add_argument('--task', '-t', help='Task to execute')
+    run_parser.add_argument('--data', '-d', help='Additional data (JSON format)')
+
+    # Inspect command
+    inspect_parser = subparsers.add_parser('inspect', aliases=['i'],
+                                           help='Inspect an agent')
+    inspect_parser.add_argument('agent', help='Agent name')
+    inspect_parser.add_argument('--show-code', '-c', action='store_true',
+                                help='Show code preview')
+
+    # Logs command
+    logs_parser = subparsers.add_parser('logs', aliases=['l'],
+                                        help='View agent logs')
+    logs_parser.add_argument('agent', help='Agent name')
+    logs_parser.add_argument('--list', action='store_true',
+                             help='List all log files')
+    logs_parser.add_argument('--tail', '-n', type=int,
+                             help='Show last N lines')
+
+    # Test command
+    test_parser = subparsers.add_parser('test', aliases=['t'],
+                                        help='Test an agent')
+    test_parser.add_argument('agent', help='Agent name')
+
+    # Config command
+    config_parser = subparsers.add_parser('config', aliases=['c'],
+                                          help='Manage configuration')
+    config_parser.add_argument('action', choices=['show', 'edit', 'reset'],
+                               help='Configuration action')
+
     args = parser.parse_args()
 
+    # Route to appropriate command
     if args.command in ['wizard', 'w']:
         cmd_wizard(args)
     elif args.command in ['status', 's']:
         cmd_status(args)
+    elif args.command in ['list', 'ls']:
+        cmd_list(args)
+    elif args.command in ['run', 'r']:
+        return cmd_run(args)
+    elif args.command in ['inspect', 'i']:
+        return cmd_inspect(args)
+    elif args.command in ['logs', 'l']:
+        return cmd_logs(args)
+    elif args.command in ['test', 't']:
+        return cmd_test(args)
+    elif args.command in ['config', 'c']:
+        return cmd_config(args)
     else:
         output.banner()
         output.info("Available commands:")
-        output.info("  wizard (w)  - Interactive agent creation")
-        output.info("  status (s)  - Show system status")
+        output.info("  wizard (w)     - Interactive agent creation")
+        output.info("  status (s)     - Show system status")
+        output.info("  list (ls)      - List all agents")
+        output.info("  run (r)        - Run an agent")
+        output.info("  inspect (i)    - Inspect agent details")
+        output.info("  logs (l)       - View agent logs")
+        output.info("  test (t)       - Test an agent")
+        output.info("  config (c)     - Manage configuration")
         output.info("\nFor help: numagent-enhanced --help")
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main() or 0)
